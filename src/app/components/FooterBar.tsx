@@ -2,15 +2,27 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Send, Trash2 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
+import { sendFeedback } from "../feedback";
 
 function FeedbackModal({ onClose }: { onClose: () => void }) {
   const { tokens } = useTheme();
   const [text, setText] = useState("");
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [failed, setFailed] = useState(false);
 
-  function handleSubmit() {
-    if (!text.trim()) return;
-    setSent(true);
+  async function handleSubmit() {
+    if (!text.trim() || sending) return;
+    setSending(true);
+    setFailed(false);
+    try {
+      await sendFeedback(text.trim());
+      setSent(true);
+    } catch {
+      setFailed(true);
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -67,6 +79,11 @@ function FeedbackModal({ onClose }: { onClose: () => void }) {
                   lineHeight: 1.5,
                 }}
               />
+              {failed && (
+                <p style={{ fontSize: 10, color: "#ff4444", lineHeight: 1.4 }}>
+                  Couldn&apos;t send. Please try again later.
+                </p>
+              )}
               <div className="flex justify-end gap-2">
                 <button
                   onClick={onClose}
@@ -82,7 +99,7 @@ function FeedbackModal({ onClose }: { onClose: () => void }) {
                 </button>
                 <button
                   onClick={handleSubmit}
-                  disabled={!text.trim()}
+                  disabled={!text.trim() || sending}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all disabled:opacity-30"
                   style={{
                     fontSize: 11,
