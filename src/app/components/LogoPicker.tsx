@@ -14,6 +14,14 @@ export const PRESETS: { id: string; src: string; label: string }[] = [
 
 export const DEFAULT_LOGO = PRESETS[0].src;
 
+export function logoSrcFromId(id: string): string {
+  return (PRESETS.find((p) => p.id === id) ?? PRESETS[0]).src;
+}
+
+export function logoIdFromSrc(src: string): string {
+  return (PRESETS.find((p) => p.src === src) ?? PRESETS[0]).id;
+}
+
 interface LogoPickerProps {
   current: string;
   onChange: (src: string) => void;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Settings, Info, Clock } from "lucide-react";
 import { ImageWithFallback } from "./components/figma/ImageWithFallback";
@@ -6,18 +6,24 @@ import { UrlFormatter } from "./components/UrlFormatter";
 import { FooterBar } from "./components/FooterBar";
 import { SettingsPanel } from "./components/SettingsPanel";
 import { HistoryPanel, type HistoryItem } from "./components/HistoryPanel";
-import { LogoPicker, DEFAULT_LOGO } from "./components/LogoPicker";
+import { LogoPicker, logoSrcFromId, logoIdFromSrc } from "./components/LogoPicker";
 import { ThemeContext, darkTokens, lightTokens, type ThemeMode } from "./context/ThemeContext";
+import { loadAppData, saveAppData } from "./storage";
 
 export default function App() {
-  const [autoApply, setAutoApply] = useState(true);
+  const [saved] = useState(loadAppData);
+  const [autoApply, setAutoApply] = useState(saved.autoApply);
   const [showTooltip, setShowTooltip] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
-  const [themeMode, setThemeMode] = useState<ThemeMode>("dark");
-  const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [logoSrc, setLogoSrc] = useState<string>(DEFAULT_LOGO);
+  const [themeMode, setThemeMode] = useState<ThemeMode>(saved.themeMode);
+  const [history, setHistory] = useState<HistoryItem[]>(saved.history);
+  const [logoSrc, setLogoSrc] = useState<string>(() => logoSrcFromId(saved.logoId));
   const [showLogoPicker, setShowLogoPicker] = useState(false);
+
+  useEffect(() => {
+    saveAppData({ history, logoId: logoIdFromSrc(logoSrc), themeMode, autoApply });
+  }, [history, logoSrc, themeMode, autoApply]);
 
   const tokens = themeMode === "dark" ? darkTokens : lightTokens;
 
