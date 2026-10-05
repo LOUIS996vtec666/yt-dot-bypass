@@ -43,11 +43,13 @@ function renderFormattedUrl(formatted: string, original: string, urlTextColor: s
 
 interface UrlFormatterProps {
   onSave?: (original: string, formatted: string) => void;
+  /** Pre-fills the input (used by Storybook to show states without typing). */
+  initialValue?: string;
 }
 
-export function UrlFormatter({ onSave }: UrlFormatterProps) {
+export function UrlFormatter({ onSave, initialValue = "" }: UrlFormatterProps) {
   const { tokens } = useTheme();
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState(initialValue);
   const [copied, setCopied] = useState(false);
 
   const formatted = formatUrl(input);

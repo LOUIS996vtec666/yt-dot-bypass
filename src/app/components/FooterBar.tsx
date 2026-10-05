@@ -4,7 +4,13 @@ import { Send, Trash2 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import { sendFeedback } from "../feedback";
 
-function FeedbackModal({ onClose }: { onClose: () => void }) {
+interface FeedbackModalProps {
+  onClose: () => void;
+  /** Defaults to the real backend call; Storybook passes a fake. */
+  send?: (message: string) => Promise<void>;
+}
+
+export function FeedbackModal({ onClose, send = sendFeedback }: FeedbackModalProps) {
   const { tokens } = useTheme();
   const [text, setText] = useState("");
   const [sent, setSent] = useState(false);
@@ -16,7 +22,7 @@ function FeedbackModal({ onClose }: { onClose: () => void }) {
     setSending(true);
     setFailed(false);
     try {
-      await sendFeedback(text.trim());
+      await send(text.trim());
       setSent(true);
     } catch {
       setFailed(true);
