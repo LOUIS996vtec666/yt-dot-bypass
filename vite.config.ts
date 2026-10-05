@@ -17,6 +17,8 @@ function figmaAssetResolver() {
 }
 
 export default defineConfig({
+  // GitHub Pages serves the site from /<repo>/, so the deploy workflow sets VITE_BASE.
+  base: process.env.VITE_BASE ?? '/',
   plugins: [
     figmaAssetResolver(),
     // The React and Tailwind plugins are both required for Make, even if
